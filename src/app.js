@@ -29,4 +29,11 @@ app.use(cookie())
 import authRoutes from "./routes/auth.routes.js";
 
 app.use("/api/v1/auth",authRoutes)
+
+import userRoutes from "./routes/user.routes.js";
+app.use("/api/v1/user",userRoutes)
+
+import blogRoutes from "./routes/blog.routes.js";
+
+app.use("/api/v1/blog",blogRoutes)
 export {app}

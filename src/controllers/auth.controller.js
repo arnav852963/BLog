@@ -54,10 +54,12 @@ export const createAccessRefreshToken = async (user) => {
 }
 
 const login = asyncHandler(async (req , res)=>{
-    const {fullName ,  username , email} = req.body;
+    const {fullName ,  username , email , password} = req.body;
     if(!fullName.trim() || !username.trim() || !email.trim()) throw new ApiError(400 , "fullName , username and email is required");
     const exist = await User.findOne({email});
     if(exist) {
+
+        if(!exist.isPasswordCorrect(password)) throw new ApiError(401, "invalid password");
 
         const {accessToken , refreshToken} = await createAccessRefreshToken(exist);
 
@@ -79,7 +81,8 @@ const login = asyncHandler(async (req , res)=>{
     const user = await User.create({
         fullName,
         username,
-        email
+        email,
+        password
     })
     if (!user) throw new ApiError(500, "user was not created");
 
