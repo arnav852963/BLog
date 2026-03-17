@@ -31,7 +31,7 @@ const  createBlog = asyncHandler(async (req, res) => {
 
     if(!blog) throw new ApiError(500, "blog creation failed");
 
-    res.status(201).json(new ApiResponse(201, {} , "blog created successfully"));
+    res.status(201).json(new ApiResponse(201, blog , "blog created successfully"));
 })
 
 const  getBlog = asyncHandler(async (req, res) => {
@@ -90,15 +90,16 @@ const getAllBlogs = asyncHandler(async (req, res) => {
 const updateBlog = asyncHandler(async (req, res) => {
 
     const {blogId} = req.params;
-    const {title, content} = req.body;
+    const {title ='', content='' , slug=''} = req.body;
     if (!blogId.trim()) throw new ApiError(400, "blogId is required")
     const exist = await Blog.findById(blogId);
     if (!exist) throw new ApiError(404, "blog not found");
     if (exist.owner.toString() !== req?.user?._id.toString()) throw new ApiError(403, "you are not the owner of this blog");
 
     const obj = {}
-    if (title) obj.title = title;
-    if (content) obj.content = content;
+    if (title.trim()) obj.title = title;
+    if (content.trim()) obj.content = content;
+    if(slug.trim()) obj.slug = slug
     const blog = await Blog.findByIdAndUpdate(blogId, {
         $set: obj
 
@@ -133,11 +134,28 @@ const updateFeaturedImage = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, {}, "blog featured image updated successfully"))
 })
 
+const deleteBlog = asyncHandler(async (req , res)=>{
+    const  {blogId} = req?.params
+    if(!blogId || !blogId.trim()) throw new ApiError(400 , "blogId  not found")
+
+    const delBlog = await Blog.findByIdAndDelete(blogId)
+    if(!delBlog)  throw new ApiError( 500 , "blog not found")
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200 ,  {} , "Your Blog titled " + delBlog?.title) + " deleted successfully")
+
+
+
+
+})
+
 export {
     createBlog,
     getBlog,
     getUserBlogs,
     getAllBlogs,
     updateBlog,
-    updateFeaturedImage
+    updateFeaturedImage,
+    deleteBlog
 }

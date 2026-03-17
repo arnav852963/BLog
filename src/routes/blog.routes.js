@@ -7,7 +7,7 @@ import {
     getUserBlogs,
     getAllBlogs,
     updateBlog,
-    updateFeaturedImage,
+    updateFeaturedImage, deleteBlog,
 } from "../controllers/blog.controller.js";
 
 import {upload_mul} from "../middlewares/multer.middleware.js";
@@ -23,5 +23,5 @@ blogRoutes.route("/getUserBlogs").get(getUserBlogs);
 blogRoutes.route("/getAllBlogs").get(getAllBlogs);
 blogRoutes.route("/updateBlog/:blogId").patch(updateBlog);
 blogRoutes.route("/updateFeaturedImage/:blogId").patch(upload_mul.single("featuredImage") , updateFeaturedImage);
-
+blogRoutes.route("/deleteBlog/:blogId").delete(deleteBlog)
 export default blogRoutes;

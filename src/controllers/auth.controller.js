@@ -53,9 +53,35 @@ export const createAccessRefreshToken = async (user) => {
 
 }
 
-const login = asyncHandler(async (req , res)=>{
+
+const signin = asyncHandler(async (req , res)=>{
     const {fullName ,  username , email , password} = req.body;
     if(!fullName.trim() || !username.trim() || !email.trim()) throw new ApiError(400 , "fullName , username and email is required");
+    const exist = await User.findOne({email});
+    if(exist) {
+
+       throw new ApiError( 400 , " u already are registered with this email")
+
+    }
+    const user = await User.create({
+        fullName,
+        username,
+        email,
+        password
+    })
+    if (!user) throw new ApiError(500, "user was not created");
+
+
+    return res
+        .status(200)
+
+        .json(new ApiResponse(200, user, "user logged in successfully"))
+})
+
+
+const login = asyncHandler(async (req , res)=>{
+    const { email , password} = req.body;
+    if(! email || !email.trim() || ! password || !password.trim()) throw new ApiError(400 , " email and password is required");
     const exist = await User.findOne({email});
     if(exist) {
 
@@ -78,29 +104,7 @@ const login = asyncHandler(async (req , res)=>{
 
 
     }
-    const user = await User.create({
-        fullName,
-        username,
-        email,
-        password
-    })
-    if (!user) throw new ApiError(500, "user was not created");
-
-    const {accessToken , refreshToken} = await createAccessRefreshToken(user);
-
-    user.refreshToken = refreshToken;
-    await user.save({validateBeforeSave:false});
-
-    const options = {
-        httpOnly: true,
-        secure: true,
-    }
-
-    return res
-        .status(200)
-        .cookie('accessToken' , accessToken  , options)
-        .cookie('refreshToken' , refreshToken , options)
-        .json(new ApiResponse(200, user, "user logged in successfully"))
+    throw new ApiError(401 , "user is not registered")
 })
 
 const logout = asyncHandler(async (req , res)=>{
@@ -115,4 +119,4 @@ const logout = asyncHandler(async (req , res)=>{
     res.clearCookie('refreshToken');
     return res.status(200).json(new ApiResponse(200, {} , "user logged out successfully"))
 })
-export {login ,  logout}
+export {login ,  logout , signin}

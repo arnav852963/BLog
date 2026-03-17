@@ -22,7 +22,7 @@ const blogSchema = new Schema({
     },
     status:{
         type:String,
-        enum:["draft" , "published"],
+        enum:["active" , "inactive"],
         default:"draft"
     },
 
