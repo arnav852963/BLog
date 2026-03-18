@@ -82,8 +82,9 @@ const getUserBlogs = asyncHandler(async (req, res) => {
 })
 
 const getAllBlogs = asyncHandler(async (req, res) => {
-    const blogs = await Blog.find({status:"published"}).sort({createdAt:-1})
-    if(!blogs || blogs.length ===0) throw new ApiError(500, "cant fetch blogs");
+    const blogs = await Blog.find({status:"active"}).sort({createdAt:-1})
+    if(!blogs) throw new ApiError(500, "cant fetch blogs");
+    if(blogs.length ===0 )  return res.status(200).json(new ApiResponse(200, blogs , "there are no blogs"));
     res.status(200).json(new ApiResponse(200, blogs , "blogs retracted successfully"));
 })
 
